@@ -6,6 +6,7 @@ const organizationSchema = new mongoose.Schema({
   location: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  role: { type: String, enum: ["organization"], default: "organization" },
 
   // 🎁 Wishlist section (for item donations)
   wishlist: [

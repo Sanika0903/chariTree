@@ -62,9 +62,11 @@ router.post("/org/login", async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ id: org._id, type: "organization" }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
+    const token = jwt.sign(
+      { id: org._id, role: org.role || 'organization', type: "organization" },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
     res.json({
       token,
@@ -72,6 +74,7 @@ router.post("/org/login", async (req, res) => {
         id: org._id,
         name: org.name,
         email: org.email,
+        role: org.role || 'organization',
         category: org.category,
         location: org.location,
       },

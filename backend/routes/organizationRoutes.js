@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Organization = require("../models/Organization");
-const authMiddleware = require("../middleware/auth");
+const { authMiddleware, authorizeRoles } = require("../middleware/auth");
 
 // Get all organizations (public)
 router.get("/", async (req, res) => {
@@ -20,9 +20,9 @@ router.get("/", async (req, res) => {
 });
 
 // Update wishlist (protected)
-router.put("/wishlist", authMiddleware, async (req, res) => {
+router.put("/wishlist", authMiddleware, authorizeRoles("organization"), async (req, res) => {
   try {
-    if (req.user.type !== "organization")
+    if (req.user.role !== "organization")
       return res.status(403).json({ message: "Access denied" });
 
     const { wishlist } = req.body;
@@ -117,9 +117,9 @@ router.post("/split", async (req, res) => {
 });
 
 // Get organization dashboard (protected)
-router.get("/dashboard/me", authMiddleware, async (req, res) => {
+router.get("/dashboard/me", authMiddleware, authorizeRoles("organization"), async (req, res) => {
   try {
-    if (req.user.type !== "organization")
+    if (req.user.role !== "organization")
       return res.status(403).json({ message: "Access denied" });
 
     const org = await Organization.findById(req.user.id).select("-password");
@@ -132,9 +132,9 @@ router.get("/dashboard/me", authMiddleware, async (req, res) => {
 });
 
 // Add update/post (protected)
-router.post("/updates", authMiddleware, async (req, res) => {
+router.post("/updates", authMiddleware, authorizeRoles("organization"), async (req, res) => {
   try {
-    if (req.user.type !== "organization")
+    if (req.user.role !== "organization")
       return res.status(403).json({ message: "Access denied" });
 
     const { title, content } = req.body;
@@ -149,9 +149,9 @@ router.post("/updates", authMiddleware, async (req, res) => {
 });
 
 // Delete update (protected)
-router.delete("/updates/:updateId", authMiddleware, async (req, res) => {
+router.delete("/updates/:updateId", authMiddleware, authorizeRoles("organization"), async (req, res) => {
   try {
-    if (req.user.type !== "organization")
+    if (req.user.role !== "organization")
       return res.status(403).json({ message: "Access denied" });
 
     const org = await Organization.findById(req.user.id);

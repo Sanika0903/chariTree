@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken");
 const authMiddleware = (req, res, next) => {
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "");
-    
     if (!token) {
       return res.status(401).json({ message: "No token, authorization denied" });
     }
@@ -16,4 +15,11 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-module.exports = authMiddleware;
+const authorizeRoles = (...allowedRoles) => (req, res, next) => {
+  if (!req.user || !allowedRoles.includes(req.user.role)) {
+    return res.status(403).json({ message: "Access denied" });
+  }
+  next();
+};
+
+module.exports = { authMiddleware, authorizeRoles };
