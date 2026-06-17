@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiUrl } from "../config/api";
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 
 export default function DonorLoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -40,9 +43,13 @@ export default function DonorLoginPage() {
 
       if (!res.ok) throw new Error(data.message || "Login failed");
 
-      // Save token (for demo, localStorage)
-      localStorage.setItem("donorToken", data.token);
-      navigate("/donate");
+      // Centralize auth
+      login({ token: data.token, role: data.user?.role || 'donor', user: data.user || null });
+      // Redirect based on role
+      const role = data.user?.role || 'donor';
+      if (role === 'donor') navigate('/dashboard/donor');
+      else if (role === 'volunteer') navigate('/dashboard/volunteer');
+      else navigate('/');
     } catch (err) {
       setError(err.message || "Something went wrong");
     } finally {

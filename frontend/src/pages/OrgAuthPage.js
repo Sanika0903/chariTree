@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { apiUrl } from "../config/api";
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function OrgAuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -13,6 +16,8 @@ export default function OrgAuthPage() {
     location: "Mumbai",
   });
   const [error, setError] = useState("");
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,9 +27,10 @@ export default function OrgAuthPage() {
         ? apiUrl("/api/auth/org/login")
         : apiUrl("/api/auth/org/signup");
       const res = await axios.post(endpoint, formData);
-      localStorage.setItem("token", res.data.token);
+      // centralize auth
+      login({ token: res.data.token, role: 'organization', user: res.data.organization });
       alert(`Welcome ${res.data.organization.name}!`);
-      window.location.href = "/org-dashboard";
+      navigate('/dashboard/org');
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong");
     }

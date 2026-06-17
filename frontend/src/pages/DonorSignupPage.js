@@ -34,6 +34,7 @@ export default function DonorSignupPage() {
       }
 
       if (!res.ok) throw new Error(data.message || "Signup failed");
+      // Redirect to login after successful signup
       navigate("/donor-login");
     } catch (err) {
       setError(err.message || "Something went wrong");
