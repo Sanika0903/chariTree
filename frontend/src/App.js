@@ -25,29 +25,35 @@ import OrgNavbar from './components/OrgNavbar';
 // AdminNavbar intentionally not imported (not used yet)
 import ProtectedRoute from './components/ProtectedRoute';
 
+function PublicLayout({ children }) {
+  return (
+    <>
+      <PublicNavbar />
+      {children}
+    </>
+  );
+}
+
 export default function App() {
 
   return (
     <AuthProvider>
       <Router>
-        {/* Public navbar on top-level routes */}
-        <PublicNavbar />
-
         <Routes>
           {/* Public pages */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<div className="p-8">Contact page placeholder</div>} />
+          <Route path="/" element={<PublicLayout><HomePage /></PublicLayout>} />
+          <Route path="/about" element={<PublicLayout><AboutPage /></PublicLayout>} />
+          <Route path="/contact" element={<PublicLayout><div className="p-8">Contact page placeholder</div></PublicLayout>} />
           <Route path="/organizations" element={<DonatePage />} />
-          <Route path="/campaigns" element={<CommunityPage />} />
-          <Route path="/login" element={<DonorLoginPage />} />
-          <Route path="/signup" element={<DonorSignupPage />} />
-          <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/campaigns" element={<PublicLayout><CommunityPage /></PublicLayout>} />
+          <Route path="/login" element={<PublicLayout><DonorLoginPage /></PublicLayout>} />
+          <Route path="/signup" element={<PublicLayout><DonorSignupPage /></PublicLayout>} />
+          <Route path="/payment" element={<PublicLayout><PaymentPage /></PublicLayout>} />
 
           {/* Auth pages (legacy routes kept) */}
-          <Route path="/donor-login" element={<DonorLoginPage />} />
-          <Route path="/donor-signup" element={<DonorSignupPage />} />
-          <Route path="/org-login" element={<OrgAuthPage />} />
+          <Route path="/donor-login" element={<PublicLayout><DonorLoginPage /></PublicLayout>} />
+          <Route path="/donor-signup" element={<PublicLayout><DonorSignupPage /></PublicLayout>} />
+          <Route path="/org-login" element={<PublicLayout><OrgAuthPage /></PublicLayout>} />
 
           {/* Dashboard summaries (protected) */}
           <Route
