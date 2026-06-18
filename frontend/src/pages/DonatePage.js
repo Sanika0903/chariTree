@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import DonorNavbar from "../components/DonorNavbar";
+import { Link, useLocation } from "react-router-dom";
 import { apiUrl } from "../config/api";
 
 export default function DonatePage() {
@@ -61,9 +61,21 @@ export default function DonatePage() {
     }
   }, [filterCategory, filterLocation, searchTerm]);
 
+  const location = useLocation();
+  const donateOrgId = new URLSearchParams(location.search).get("donateOrg");
+
   useEffect(() => {
     fetchOrganizations();
   }, [fetchOrganizations]);
+
+  useEffect(() => {
+    if (!donateOrgId || organizationData.length === 0) return;
+    const org = organizationData.find((item) => item._id === donateOrgId);
+    if (org) {
+      setSelectedOrg(org);
+      setIsModalOpen(true);
+    }
+  }, [donateOrgId, organizationData]);
 
   // --- Wishlist donation ---
   const handleWishlistSubmit = async (e) => {
@@ -211,12 +223,8 @@ const handleMonetarySubmit = async (e) => {
   };
 
   return (
-
-<>
-    {/* ✅ Add the donor-specific navbar here */}
-    <DonorNavbar />
-
-    <div className="min-h-screen bg-gradient-to-b from-sky-100 to-white text-gray-800 relative">
+    <>
+      <div className="min-h-screen bg-gradient-to-b from-sky-100 to-white text-gray-800 relative">
       {/* Header */}
       <header className="bg-gradient-to-r from-sky-200 via-white to-sky-200 py-12">
         <div className="max-w-6xl mx-auto px-6 text-center">
@@ -334,35 +342,57 @@ const handleMonetarySubmit = async (e) => {
           Organizations You Can Support
         </h3>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <AnimatePresence>
             {organizationData.length > 0 ? (
               organizationData.map((org) => (
-                <motion.div
+                <motion.article
                   key={org._id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition cursor-pointer"
+                  className="group rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-lg"
                 >
-                  <div className="font-bold text-lg text-blue-700">{org.name}</div>
-                  <div className="text-sm text-gray-500 mt-1">{org.category}</div>
-                  <div className="text-sm text-gray-400">📍 {org.location}</div>
-                  <button
-                    onClick={() => {
-                      setSelectedOrg(org);
-                      setIsModalOpen(true);
-                    }}
-                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg w-full hover:bg-blue-700 transition"
-                  >
-                    Donate
-                  </button>
-                </motion.div>
+                  <div className="flex items-center gap-4">
+                    <div className="h-16 w-16 rounded-3xl bg-blue-50 text-3xl font-bold text-blue-700 flex items-center justify-center">
+                      {org.name?.charAt(0) || "O"}
+                    </div>
+                    <div>
+                      <p className="text-sm uppercase tracking-[0.25em] text-blue-600">{org.category}</p>
+                      <h2 className="mt-2 text-xl font-semibold text-slate-900">{org.name}</h2>
+                    </div>
+                  </div>
+                  <p className="mt-5 text-slate-600 line-clamp-3 min-h-[4.5rem]">{org.description || "A mission-driven organization working to create lasting local impact."}</p>
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">{org.location}</span>
+                    <span className="rounded-full bg-blue-50 px-3 py-1 text-sm text-blue-700">Cause: {org.category}</span>
+                  </div>
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    <Link
+                      to={`/organization/${org._id}`}
+                      className="rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition"
+                    >
+                      View Details
+                    </Link>
+                    <Link
+                      to={`/organization/${org._id}?action=donate`}
+                      className="rounded-2xl border border-blue-200 px-4 py-3 text-sm font-semibold text-blue-700 hover:bg-blue-50 transition"
+                    >
+                      Donate
+                    </Link>
+                    <Link
+                      to={`/volunteer-landing`}
+                      className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition"
+                    >
+                      Volunteer
+                    </Link>
+                  </div>
+                </motion.article>
               ))
             ) : (
-              <p className="text-gray-600 text-center col-span-full">
+              <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-14 text-center text-slate-500 shadow-sm col-span-full">
                 No organizations found.
-              </p>
+              </div>
             )}
           </AnimatePresence>
         </div>

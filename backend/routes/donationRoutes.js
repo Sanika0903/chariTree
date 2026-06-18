@@ -72,6 +72,98 @@ router.get("/donor/:email", async (req, res) => {
   }
 });
 
+// ✅ Get donations by email alias for legacy frontend paths
+router.get("/by-email/:email", async (req, res) => {
+  try {
+    const donorEmail = req.params.email;
+    if (!donorEmail) {
+      return res.status(400).json({ message: "Missing donor email" });
+    }
+    const donations = await Donation.find({ donorEmail }).sort({ createdAt: -1 });
+    res.status(200).json({ donations });
+  } catch (error) {
+    console.error("[Donation Tracking Alias] Error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+// ✅ Get donor summary data
+router.get("/donor/:email/summary", async (req, res) => {
+  try {
+    const donorEmail = req.params.email;
+    if (!donorEmail) {
+      return res.status(400).json({ message: "Missing donor email" });
+    }
+
+    const donations = await Donation.find({ donorEmail }).sort({ createdAt: -1 });
+    const totalCount = donations.length;
+    const totalDonated = donations
+      .filter((donation) => donation.type === "monetary" || donation.type === "split")
+      .reduce((sum, donation) => sum + (Number(donation.amount) || 0), 0);
+    const wishlistCount = donations.filter((donation) => donation.type === "item" || donation.type === "wishlist").length;
+
+    const recentDonations = donations.slice(0, 5).map((donation) => ({
+      id: donation._id,
+      organizationName: donation.organizationName,
+      type: donation.type,
+      amount: donation.amount,
+      item: donation.item,
+      quantity: donation.quantity,
+      status: donation.status,
+      createdAt: donation.createdAt,
+    }));
+
+    res.status(200).json({
+      summary: {
+        totalDonated,
+        totalCount,
+        wishlistCount,
+      },
+      recentDonations,
+    });
+  } catch (error) {
+    console.error("[Donation Summary] Error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+// ✅ Get donor notifications from donation tracking updates
+router.get("/donor/:email/notifications", async (req, res) => {
+  try {
+    const donorEmail = req.params.email;
+    if (!donorEmail) {
+      return res.status(400).json({ message: "Missing donor email" });
+    }
+
+    const donations = await Donation.find({ donorEmail }).select("_id organizationName");
+    const donationIds = donations.map((donation) => donation._id);
+
+    if (donationIds.length === 0) {
+      return res.status(200).json({ notifications: [] });
+    }
+
+    const DonationTracking = require("../models/DonationTracking");
+    const notifications = await DonationTracking.find({ donationId: { $in: donationIds } })
+      .sort({ createdAt: -1 })
+      .limit(10);
+
+    res.status(200).json({
+      notifications: notifications.map((entry) => ({
+        id: entry._id,
+        donationId: entry.donationId,
+        organizationName: entry.organizationName,
+        title: entry.title,
+        description: entry.description,
+        status: entry.status,
+        createdAt: entry.createdAt,
+      })),
+    });
+  } catch (error) {
+    console.error("[Donation Notifications] Error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
 // ✅ Wishlist Donation
 router.post("/wishlist", async (req, res) => {
   try {

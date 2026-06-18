@@ -1,28 +1,39 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 export default function OrgNavbar() {
   const location = useLocation();
-  const links = [
-    { path: '/org-dashboard', label: 'Dashboard' },
-    { path: '/campaigns', label: 'Campaigns' },
-    { path: '/org-wishlist', label: 'Wishlist' },
-    { path: '/org-donations', label: 'Donations' },
-    { path: '/org-volunteers', label: 'Volunteers' },
-    { path: '/org-analytics', label: 'Analytics' },
-  ];
+  const navigate = useNavigate();
 
   return (
-    <nav className="bg-white shadow-md py-3 px-6 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link to="/" className="text-2xl font-bold text-blue-700">ChariTree 🌱</Link>
-        <ul className="flex gap-6 items-center">
-          {links.map((l) => (
-            <li key={l.path}><Link to={l.path} className={location.pathname === l.path ? 'text-blue-700 font-semibold' : 'text-gray-700 hover:text-blue-600'}>{l.label}</Link></li>
-          ))}
-          <li><Link to="/" onClick={() => localStorage.removeItem('auth')} className="text-red-600">Logout</Link></li>
-        </ul>
+    <nav className="sticky top-0 z-50 bg-gradient-to-r from-slate-800 to-slate-900 border-b border-slate-700 shadow-lg">
+      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        {/* Logo */}
+        <Link to="/" className="text-2xl font-bold text-blue-400 hover:text-blue-300 transition">
+          ChariTree 🌱
+        </Link>
+
+        {/* Center - Dashboard Link */}
+        <Link
+          to="/dashboard/org"
+          className="text-white hover:text-blue-400 transition font-semibold"
+        >
+          Dashboard
+        </Link>
+
+        {/* Logout */}
+        <button
+          onClick={() => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('auth');
+            navigate('/');
+          }}
+          className="px-4 py-2 rounded-2xl bg-red-600 text-white hover:bg-red-700 transition font-semibold"
+        >
+          🚪 Logout
+        </button>
       </div>
     </nav>
   );
 }
+

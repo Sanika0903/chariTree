@@ -5,25 +5,24 @@ export default function DonorNavbar() {
   const location = useLocation();
 
   const navLinks = [
-    { path: "/donor-landing", label: "Home" },
-    { path: "/about", label: "About Us" },
-    { path: "/donate", label: "Donate" },
-    { path: "/community", label: "Community" },
+    { path: "/dashboard/donor", label: "Home" },
+    { path: "/organizations", label: "Organizations" },
+    { path: "/campaigns", label: "Campaigns" },
+    { path: "/donor-profile", label: "Donation History" },
+    { path: "/notifications", label: "Notifications" },
     { path: "/donor-profile", label: "Profile" },
   ];
 
   return (
-    <nav className="bg-gradient-to-r from-blue-100 to-white shadow-md py-4 px-6 flex justify-between items-center sticky top-0 z-50">
-      {/* Logo */}
+    <nav className="bg-gradient-to-r from-blue-100 to-white shadow-md py-4 px-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 sticky top-0 z-50">
       <Link
-        to="/donor-landing"
+        to="/dashboard/donor"
         className="text-2xl font-extrabold text-blue-700 flex items-center gap-2"
       >
         ChariTree 🌱
       </Link>
 
-      {/* Navigation Links */}
-      <ul className="flex space-x-6 text-gray-700 font-semibold">
+      <ul className="flex flex-wrap gap-4 text-gray-700 font-semibold">
         {navLinks.map((link) => (
           <li key={link.path}>
             <Link

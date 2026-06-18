@@ -6,11 +6,20 @@ const { authMiddleware, authorizeRoles } = require("../middleware/auth");
 // Get all organizations (public)
 router.get("/", async (req, res) => {
   try {
-    const { category, location } = req.query;
+    const { category, location, search } = req.query;
     let filter = {};
 
     if (category && category !== "All") filter.category = category;
     if (location && location !== "All") filter.location = location;
+
+    if (search && search.trim()) {
+      const regex = new RegExp(search.trim(), "i");
+      filter.$or = [
+        { name: regex },
+        { category: regex },
+        { location: regex },
+      ];
+    }
 
     const orgs = await Organization.find(filter).select("-password");
     res.json(orgs);

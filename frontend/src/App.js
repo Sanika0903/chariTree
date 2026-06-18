@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 // Pages
 import HomePage from "./pages/HomePage";
 import DonatePage from "./pages/DonatePage";
+import OrganizationDetails from "./pages/OrganizationDetails";
 import OrgAuthPage from "./pages/OrgAuthPage";
 import OrgDashboard from "./pages/OrgDashboard";
 import PaymentPage from "./pages/PaymentPage";
@@ -13,26 +14,23 @@ import DonorLoginPage from "./pages/DonorLoginPage";
 import DonorSignupPage from "./pages/DonorSignupPage";
 import VolunteerAuthPage from "./pages/VolunteerAuthPage";
 import VolunteerDashboard from "./pages/VolunteerDashboard";
+import VolunteerLanding from "./pages/VolunteerLanding";
 import CommunityPage from "./pages/CommunityPage";
 import AboutPage from "./pages/AboutPage";
+import CampaignCreate from "./pages/CampaignCreate";
+import CampaignEdit from "./pages/CampaignEdit";
+import CampaignDetails from "./pages/CampaignDetails";
+import OrganizationWishlist from "./pages/OrganizationWishlist";
 
 // Context & nav
 import { AuthProvider } from './context/AuthContext';
+import PublicLayout from './components/PublicLayout';
 import PublicNavbar from './components/PublicNavbar';
 import DonorNavbar from './components/DonorNavbar';
 import VolunteerNavbar from './components/VolunteerNavbar';
 import OrgNavbar from './components/OrgNavbar';
 // AdminNavbar intentionally not imported (not used yet)
 import ProtectedRoute from './components/ProtectedRoute';
-
-function PublicLayout({ children }) {
-  return (
-    <>
-      <PublicNavbar />
-      {children}
-    </>
-  );
-}
 
 export default function App() {
 
@@ -44,7 +42,10 @@ export default function App() {
           <Route path="/" element={<PublicLayout><HomePage /></PublicLayout>} />
           <Route path="/about" element={<PublicLayout><AboutPage /></PublicLayout>} />
           <Route path="/contact" element={<PublicLayout><div className="p-8">Contact page placeholder</div></PublicLayout>} />
-          <Route path="/organizations" element={<DonatePage />} />
+          <Route path="/organizations" element={<PublicLayout><DonatePage /></PublicLayout>} />
+          <Route path="/organization/:id" element={<PublicLayout><OrganizationDetails /></PublicLayout>} />
+          <Route path="/campaign/:id" element={<PublicLayout><CampaignDetails /></PublicLayout>} />
+          <Route path="/volunteer-landing" element={<PublicLayout><VolunteerLanding /></PublicLayout>} />
           <Route path="/campaigns" element={<PublicLayout><CommunityPage /></PublicLayout>} />
           <Route path="/login" element={<PublicLayout><DonorLoginPage /></PublicLayout>} />
           <Route path="/signup" element={<PublicLayout><DonorSignupPage /></PublicLayout>} />
@@ -68,7 +69,23 @@ export default function App() {
 
           <Route
             path="/dashboard/org"
-            element={<ProtectedRoute roles={["organization"]}><OrgNavbar /><OrgDashboard /></ProtectedRoute>}
+            element={<ProtectedRoute roles={["organization"]}><OrgDashboard /></ProtectedRoute>}
+          />
+
+          {/* Campaign management (protected) */}
+          <Route
+            path="/org-campaigns/create"
+            element={<ProtectedRoute roles={["organization"]}><CampaignCreate /></ProtectedRoute>}
+          />
+
+          <Route
+            path="/org-campaigns/:id/edit"
+            element={<ProtectedRoute roles={["organization"]}><CampaignEdit /></ProtectedRoute>}
+          />
+
+          <Route
+            path="/org-wishlist"
+            element={<ProtectedRoute roles={["organization"]}><OrganizationWishlist /></ProtectedRoute>}
           />
 
           {/* Donor profile (protected) */}

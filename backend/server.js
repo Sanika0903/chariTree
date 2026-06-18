@@ -9,6 +9,7 @@ const donationTrackingRoutes = require("./routes/donationTrackingRoutes");
 const authRoutes = require("./routes/authRoutes");
 const userAuthRoutes = require("./routes/userAuthRoutes"); // ✅ NEW
 const volunteerRoutes = require("./routes/volunteerRoutes");
+const campaignRoutes = require("./routes/campaignRoutes"); // ✅ NEW
 
 const app = express();
 app.use(cors({
@@ -25,6 +26,7 @@ app.use("/api/organizations", organizationRoutes);
 app.use("/api/donations", donationRoutes);
 app.use("/api/volunteers", volunteerRoutes);
 app.use("/api/donations", donationTrackingRoutes);
+app.use("/api/campaigns", campaignRoutes); // ✅ NEW
 
 // DB connection
 mongoose
