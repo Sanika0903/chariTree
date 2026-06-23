@@ -8,7 +8,7 @@ import { AuthContext } from "../context/AuthContext";
 export default function DonorDashboard() {
   const { auth } = useContext(AuthContext);
   const [donations, setDonations] = useState([]);
-  const [summary, setSummary] = useState({ totalDonated: 0, totalCount: 0, wishlistCount: 0 });
+  const [summary, setSummary] = useState({ totalDonated: 0, totalCount: 0, orgsCount: 0, campaignsCount: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,13 +24,16 @@ export default function DonorDashboard() {
         setDonations(list.slice(0, 5));
 
         const monetary = list.filter((d) => d.type === "monetary" || d.type === "split");
-        const wishlist = list.filter((d) => d.type === "item" || d.type === "wishlist");
         const totalAmount = monetary.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+
+        const orgsCount = new Set(list.map((d) => d.organizationId || d.organizationName)).size;
+        const campaignsCount = new Set(list.filter((d) => d.campaignName || d.campaignId).map((d) => d.campaignName || d.campaignId)).size;
 
         setSummary({
           totalDonated: totalAmount,
           totalCount: list.length,
-          wishlistCount: wishlist.length,
+          orgsCount,
+          campaignsCount: campaignsCount || (list.length > 0 ? 1 : 0),
         });
       } catch (err) {
         console.error("Failed to fetch donor donations", err);
@@ -55,16 +58,17 @@ export default function DonorDashboard() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 w-full md:w-auto">
               <div className="rounded-3xl bg-sky-50 p-4 text-center">
-                <div className="text-sm text-slate-500">Total Donated</div>
-                <div className="mt-2 text-2xl font-semibold text-slate-900">₹{summary.totalDonated}</div>
-              </div>
-              <div className="rounded-3xl bg-slate-50 p-4 text-center">
-                <div className="text-sm text-slate-500">Donations</div>
+                <div className="text-sm text-slate-500">Total Donations</div>
                 <div className="mt-2 text-2xl font-semibold text-slate-900">{summary.totalCount}</div>
+                <div className="text-xs text-sky-600 mt-1">₹{summary.totalDonated} total value</div>
               </div>
               <div className="rounded-3xl bg-slate-50 p-4 text-center">
-                <div className="text-sm text-slate-500">Wishlist Gifts</div>
-                <div className="mt-2 text-2xl font-semibold text-slate-900">{summary.wishlistCount}</div>
+                <div className="text-sm text-slate-500">Organizations Supported</div>
+                <div className="mt-2 text-2xl font-semibold text-slate-900">{summary.orgsCount}</div>
+              </div>
+              <div className="rounded-3xl bg-slate-50 p-4 text-center">
+                <div className="text-sm text-slate-500">Campaigns Supported</div>
+                <div className="mt-2 text-2xl font-semibold text-slate-900">{summary.campaignsCount}</div>
               </div>
             </div>
           </div>
@@ -78,7 +82,7 @@ export default function DonorDashboard() {
                   <h2 className="text-2xl font-semibold text-slate-900">Recent Donations</h2>
                   <p className="mt-2 text-slate-500">Your latest contributions and status updates.</p>
                 </div>
-                <Link to="/donor-profile" className="text-sm font-semibold text-blue-600 hover:text-blue-700">View all</Link>
+                <Link to="/dashboard/donor/donations" className="text-sm font-semibold text-blue-600 hover:text-blue-700">View all</Link>
               </div>
 
               <div className="mt-8 grid gap-4">
@@ -125,12 +129,12 @@ export default function DonorDashboard() {
                   <div className="mt-3 font-semibold text-slate-900">Campaigns</div>
                   <div className="mt-2 text-sm text-slate-500">Explore active causes.</div>
                 </Link>
-                <Link to="/donor-profile" className="rounded-3xl border border-slate-200 bg-slate-50 p-5 hover:bg-slate-100 transition">
+                <Link to="/dashboard/donor/donations" className="rounded-3xl border border-slate-200 bg-slate-50 p-5 hover:bg-slate-100 transition">
                   <div className="text-blue-700 text-xl">📜</div>
                   <div className="mt-3 font-semibold text-slate-900">Donation History</div>
                   <div className="mt-2 text-sm text-slate-500">Review your contributions.</div>
                 </Link>
-                <Link to="/notifications" className="rounded-3xl border border-slate-200 bg-slate-50 p-5 hover:bg-slate-100 transition">
+                <Link to="/dashboard/donor/notifications" className="rounded-3xl border border-slate-200 bg-slate-50 p-5 hover:bg-slate-100 transition">
                   <div className="text-blue-700 text-xl">🔔</div>
                   <div className="mt-3 font-semibold text-slate-900">Notifications</div>
                   <div className="mt-2 text-sm text-slate-500">See updates and alerts.</div>

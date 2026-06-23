@@ -28,10 +28,12 @@ const donationSchema = new mongoose.Schema({
   deliveryMethod: { type: String, enum: ["pickup", "dropoff"] },
   orderId: { type: String },
   paymentId: { type: String },
+  campaignId: { type: mongoose.Schema.Types.ObjectId, ref: "Campaign" },
+  campaignName: { type: String },
   status: {
     type: String,
-    enum: ["pending", "completed", "failed"], // 🔽 lowercase values
-    default: "pending",
+    enum: ["pending", "completed", "failed", "received", "purchased", "distributed", "verified", "Received", "Purchased", "Distributed", "Verified"],
+    default: "Received",
   },
   createdAt: { type: Date, default: Date.now },
 });

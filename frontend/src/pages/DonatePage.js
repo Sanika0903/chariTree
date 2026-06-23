@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { apiUrl } from "../config/api";
+import { AuthContext } from "../context/AuthContext";
 
 export default function DonatePage() {
+  const { auth } = useContext(AuthContext);
   const [activeCard, setActiveCard] = useState("money");
   const [filterCategory, setFilterCategory] = useState("All");
   const [filterLocation, setFilterLocation] = useState("All");
@@ -63,6 +65,19 @@ export default function DonatePage() {
 
   const location = useLocation();
   const donateOrgId = new URLSearchParams(location.search).get("donateOrg");
+  const campaignId = new URLSearchParams(location.search).get("campaignId");
+  const campaignName = new URLSearchParams(location.search).get("campaignName");
+
+  useEffect(() => {
+    if (auth?.user) {
+      setWishlistForm((prev) => ({
+        ...prev,
+        name: auth.user.name || prev.name,
+        email: auth.user.email || prev.email,
+        phone: auth.user.phone || prev.phone,
+      }));
+    }
+  }, [auth]);
 
   useEffect(() => {
     fetchOrganizations();
@@ -83,12 +98,14 @@ export default function DonatePage() {
     try {
       await axios.post(apiUrl("/api/donations/wishlist"), {
         orgId: selectedOrg._id,
-        name: wishlistForm.name,
-        email: wishlistForm.email,
-        phone: wishlistForm.phone,
+        name: wishlistForm.name || auth?.user?.name || "Anonymous",
+        email: wishlistForm.email || auth?.user?.email || "anonymous@example.com",
+        phone: wishlistForm.phone || auth?.user?.phone || "",
         item: selectedWishlistItem,
         quantity: wishlistForm.quantity,
         method: wishlistForm.method,
+        campaignId,
+        campaignName,
       });
 
 
@@ -118,10 +135,12 @@ const handleMonetarySubmit = async (e) => {
   try {
     const payload = {
       orgId: selectedOrg._id,
-      donorName: "Anonymous Donor",
-      donorEmail: "anonymous@example.com",
-      donorPhone: "",
+      donorName: auth?.user?.name || "Anonymous Donor",
+      donorEmail: auth?.user?.email || "anonymous@example.com",
+      donorPhone: auth?.user?.phone || "",
       amount: monetaryAmount,
+      campaignId,
+      campaignName,
     };
 
     console.log("🧾 Sending monetary donation:", payload);
@@ -202,6 +221,8 @@ const handleMonetarySubmit = async (e) => {
         selectedSplitOrgs.map((org) =>
           axios.post(apiUrl("/api/donations/split"), {
             orgId: org._id,
+            donorName: auth?.user?.name || "Anonymous Donor",
+            donorEmail: auth?.user?.email || "anonymous@example.com",
             amount: amountPerOrg,
           })
         )

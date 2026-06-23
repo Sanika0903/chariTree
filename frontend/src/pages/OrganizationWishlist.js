@@ -3,11 +3,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { apiUrl } from "../config/api";
-import OrgNavbar from "../components/OrgNavbar";
 
 export default function OrganizationWishlist() {
   const navigate = useNavigate();
-  const [org, setOrg] = useState(null);
   const [wishlist, setWishlist] = useState([]);
   const [newItem, setNewItem] = useState({ item: "", quantity: "" });
   const [loading, setLoading] = useState(true);
@@ -20,7 +18,6 @@ export default function OrganizationWishlist() {
         const res = await axios.get(apiUrl("/api/organizations/dashboard/me"), {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setOrg(res.data);
         setWishlist(res.data.wishlist || []);
       } catch (err) {
         console.error("Error fetching org data:", err);
@@ -74,7 +71,6 @@ export default function OrganizationWishlist() {
 
   return (
     <>
-      <OrgNavbar />
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-8">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Header */}

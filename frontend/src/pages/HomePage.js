@@ -37,10 +37,10 @@ export default function HomePage() {
             <div className="bg-white rounded-3xl shadow-xl p-6">
               <h3 className="text-xl font-semibold text-blue-700 mb-4">Quick Actions</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button onClick={() => navigate('/donor-login')} className="p-4 rounded-xl bg-gradient-to-r from-blue-50 to-white hover:shadow-md">💙 Donor Login</button>
+                <button onClick={() => navigate('/login')} className="p-4 rounded-xl bg-gradient-to-r from-blue-50 to-white hover:shadow-md">💙 Donor Login</button>
                 <button onClick={() => navigate('/org-login')} className="p-4 rounded-xl bg-gradient-to-r from-purple-50 to-white hover:shadow-md">🏢 Organization Login</button>
                 <button onClick={() => navigate('/volunteer-login')} className="p-4 rounded-xl bg-gradient-to-r from-green-50 to-white hover:shadow-md">🤝 Volunteer</button>
-                <button onClick={() => navigate('/donor-signup')} className="p-4 rounded-xl bg-gradient-to-r from-yellow-50 to-white hover:shadow-md">✨ Become a Donor</button>
+                <button onClick={() => navigate('/signup')} className="p-4 rounded-xl bg-gradient-to-r from-yellow-50 to-white hover:shadow-md">✨ Become a Donor</button>
               </div>
             </div>
           </div>

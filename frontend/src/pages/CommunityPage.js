@@ -1,53 +1,10 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 
 export default function CommunityPage() {
-  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white text-gray-800">
-      {/* 🌿 Navbar */}
-      <nav className="bg-white shadow-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <h1
-            onClick={() => navigate("/")}
-            className="text-2xl font-bold text-indigo-700 cursor-pointer"
-          >
-            ChariTree 🌱
-          </h1>
-          <ul className="hidden md:flex gap-8 text-gray-700 font-medium">
-            <li
-              onClick={() => navigate("/")}
-              className="cursor-pointer hover:text-indigo-600"
-            >
-              Home
-            </li>
-            <li
-              onClick={() => navigate("/about")}
-              className="cursor-pointer hover:text-indigo-600"
-            >
-              About
-            </li>
-            <li
-              onClick={() => navigate("/donate")}
-              className="cursor-pointer hover:text-indigo-600"
-            >
-              Contribute
-            </li>
-            <li className="text-indigo-600 font-semibold cursor-pointer">
-              Community
-            </li>
-            <li
-              onClick={() => navigate("/profile")}
-              className="cursor-pointer hover:text-indigo-600"
-            >
-              Profile
-            </li>
-          </ul>
-        </div>
-      </nav>
-
       {/* 💙 Header */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { apiUrl } from "../config/api";
+import { AuthContext } from "../context/AuthContext";
 
 export default function VolunteerAuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,6 +16,7 @@ export default function VolunteerAuthPage() {
   });
 
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,14 +25,17 @@ export default function VolunteerAuthPage() {
     e.preventDefault();
     try {
       const url = isLogin
-        ? apiUrl("/api/volunteers/login")
-        : apiUrl("/api/volunteers/register");
+        ? apiUrl("/api/user/login")
+        : apiUrl("/api/user/register");
+      const payload = isLogin
+        ? formData
+        : { ...formData, role: "volunteer" };
 
-      const res = await axios.post(url, formData);
-      localStorage.setItem("token", res.data.token);
+      const res = await axios.post(url, payload);
+      login({ token: res.data.token, role: "volunteer", user: res.data.user });
 
       alert(`Welcome ${formData.name || "Volunteer"}!`);
-      navigate("/volunteer-landing");
+      navigate("/dashboard/volunteer");
     } catch (err) {
       console.error(err);
       alert("Authentication failed. Check credentials.");

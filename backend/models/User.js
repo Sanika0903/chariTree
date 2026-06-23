@@ -7,7 +7,20 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   phone: { type: String },
-  role: { type: String, enum: ["donor", "volunteer"], required: true },
+  role: { type: String, enum: ["donor", "volunteer", "admin"], required: true },
+  city: { type: String },
+  skills: [{ type: String }],
+  bio: { type: String },
+  hoursLogged: { type: Number, default: 0 },
+  certificates: [
+    {
+      title: { type: String, required: true },
+      organization: { type: String, required: true },
+      date: { type: Date, default: Date.now },
+      hoursLogged: { type: Number, default: 0 },
+      description: { type: String },
+    },
+  ],
   joinedAt: { type: Date, default: Date.now },
 });
 

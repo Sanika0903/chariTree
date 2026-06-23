@@ -175,6 +175,117 @@ router.delete("/updates/:updateId", authMiddleware, authorizeRoles("organization
   }
 });
 
+// Toggle organization verification
+router.put("/:id/verify", async (req, res) => {
+  try {
+    const org = await Organization.findById(req.params.id);
+    if (!org) return res.status(404).json({ message: "Organization not found" });
+    org.verified = !org.verified;
+    await org.save();
+    res.json({ message: `Organization verification status updated`, verified: org.verified });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+// Delete organization
+router.delete("/:id", async (req, res) => {
+  try {
+    await Organization.findByIdAndDelete(req.params.id);
+    res.json({ message: "Organization deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+const VolunteerApplication = require("../models/VolunteerApplication");
+const User = require("../models/User");
+
+// 🤝 Get volunteer applications for this organization
+router.get("/volunteers", authMiddleware, authorizeRoles("organization"), async (req, res) => {
+  try {
+    if (req.user.role !== "organization") {
+      return res.status(403).json({ message: "Access denied" });
+    }
+    const apps = await VolunteerApplication.find({ orgId: req.user.id }).sort({ createdAt: -1 });
+
+    // Enrich applications with the volunteer's registered userId in users collection
+    const enrichedApps = await Promise.all(
+      apps.map(async (app) => {
+        const user = await User.findOne({ email: app.email, role: "volunteer" });
+        return {
+          ...app.toObject(),
+          userId: user ? user._id : null,
+        };
+      })
+    );
+
+    res.json(enrichedApps);
+  } catch (error) {
+    console.error("Error fetching volunteers:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+// ✏️ Accept/Reject volunteer application
+router.put("/volunteers/:appId", authMiddleware, authorizeRoles("organization"), async (req, res) => {
+  try {
+    if (req.user.role !== "organization") {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const { status } = req.body;
+    if (!["approved", "rejected", "pending"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    const app = await VolunteerApplication.findById(req.params.appId);
+    if (!app) return res.status(404).json({ message: "Application not found" });
+
+    if (app.orgId.toString() !== req.user.id.toString()) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    app.status = status;
+    await app.save();
+
+    res.json({ message: "Application status updated successfully", application: app });
+  } catch (error) {
+    console.error("Error updating volunteer application:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+// 👤 Update organization profile details
+router.put("/profile", authMiddleware, authorizeRoles("organization"), async (req, res) => {
+  try {
+    if (req.user.role !== "organization") {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const { name, category, location } = req.body;
+    const org = await Organization.findById(req.user.id);
+    if (!org) return res.status(404).json({ message: "Organization not found" });
+
+    if (name) org.name = name;
+    if (category) org.category = category;
+    if (location) org.location = location;
+
+    await org.save();
+
+    const updatedOrg = org.toObject();
+    delete updatedOrg.password;
+
+    res.json({
+      message: "Profile updated successfully",
+      organization: updatedOrg,
+    });
+  } catch (error) {
+    console.error("Error updating organization profile:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
 // ✅ Must be last
 router.get("/:id", async (req, res) => {
   try {

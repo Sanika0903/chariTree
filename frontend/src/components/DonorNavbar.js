@@ -1,5 +1,6 @@
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useContext } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 export default function DonorNavbar() {
   const location = useLocation();
@@ -8,10 +9,18 @@ export default function DonorNavbar() {
     { path: "/dashboard/donor", label: "Home" },
     { path: "/organizations", label: "Organizations" },
     { path: "/campaigns", label: "Campaigns" },
-    { path: "/donor-profile", label: "Donation History" },
-    { path: "/notifications", label: "Notifications" },
-    { path: "/donor-profile", label: "Profile" },
+    { path: "/dashboard/donor/donations", label: "Donation History" },
+    { path: "/dashboard/donor/notifications", label: "Notifications" },
+    { path: "/dashboard/donor/profile", label: "Profile" },
   ];
+
+  const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <nav className="bg-gradient-to-r from-blue-100 to-white shadow-md py-4 px-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 sticky top-0 z-50">
@@ -35,7 +44,10 @@ export default function DonorNavbar() {
             </Link>
           </li>
         ))}
-      </ul>
+<li>
+            <button onClick={handleLogout} className="text-red-600 hover:text-red-700 font-semibold">Logout</button>
+          </li>
+        </ul>
     </nav>
   );
 }

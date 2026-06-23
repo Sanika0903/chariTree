@@ -1,14 +1,15 @@
-import React from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { useState } from "react";
 import { apiUrl } from "../config/api";
+import { AuthContext } from "../context/AuthContext";
 
 export default function VolunteerLanding() {
   const navigate = useNavigate();
   const location = useLocation();
   const org = location.state?.org;
+  const { auth } = useContext(AuthContext);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -16,68 +17,42 @@ export default function VolunteerLanding() {
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  useEffect(() => {
+    if (auth?.user) {
+      setName(auth.user.name || "");
+      setEmail(auth.user.email || "");
+    }
+  }, [auth]);
+
   const handleApply = async (e) => {
     e.preventDefault();
     if (!name || !email || !availability) return alert('Please fill name, email and availability.');
     setSubmitting(true);
     try {
-      // optimistic attempt: backend route may not exist yet
       await axios.post(apiUrl('/api/volunteers/apply'), {
         orgId: org?._id,
+        orgName: org?.name,
         name,
         email,
         availability,
         message,
+        opportunityTitle: `${org?.name || 'Community'} Volunteer Opportunity`,
+        location: org?.location || 'Remote',
+        date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       });
       alert('Application submitted — the organization will contact you.');
       setName(''); setEmail(''); setAvailability(''); setMessage('');
+      navigate('/dashboard/volunteer/my-events');
     } catch (err) {
-      console.warn('Apply request failed (backend may not exist):', err.message || err);
-      alert('Application noted locally. Backend route not available.');
+      console.warn('Apply request failed:', err.message || err);
+      alert('Failed to submit application. Please try again.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const navItems = [
-    { name: "Home", path: "/volunteer-landing" },
-    { name: "About Us", path: "/about" },
-    { name: "Volunteer", path: "/volunteer-opportunities" },
-    { name: "Community", path: "/community" },
-    { name: "Profile", path: "/volunteer-profile" },
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white text-gray-800">
-      {/* 🌿 Navbar */}
-      <nav className="bg-white shadow-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <h1
-            onClick={() => navigate("/")}
-            className="text-2xl font-bold text-green-700 cursor-pointer"
-          >
-            ChariTree 🌱
-          </h1>
-          <ul className="hidden md:flex gap-8 text-gray-700 font-medium">
-            {navItems.map((item, i) => (
-              <li
-                key={i}
-                onClick={() => navigate(item.path)}
-                className="cursor-pointer hover:text-green-600 transition"
-              >
-                {item.name}
-              </li>
-            ))}
-          </ul>
-          <button
-            onClick={() => navigate("/")}
-            className="md:hidden text-green-700 font-semibold"
-          >
-            ☰
-          </button>
-        </div>
-      </nav>
-
       {/* 💚 Hero Section */}
       <motion.section
         initial={{ opacity: 0, y: -20 }}
@@ -93,7 +68,7 @@ export default function VolunteerLanding() {
         </p>
 
         <button
-          onClick={() => navigate("/volunteer-opportunities")}
+          onClick={() => navigate("/events")}
           className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 shadow-md transition"
         >
           Find Opportunities 🤝

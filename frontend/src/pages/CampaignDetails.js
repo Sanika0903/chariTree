@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { apiUrl } from "../config/api";
-import PublicLayout from "../components/PublicLayout";
 
 export default function CampaignDetails() {
   const navigate = useNavigate();
@@ -35,21 +34,17 @@ export default function CampaignDetails() {
 
   if (loading) {
     return (
-      <PublicLayout>
-        <div className="min-h-screen flex items-center justify-center">
-          <p className="text-slate-700 font-semibold">Loading campaign…</p>
-        </div>
-      </PublicLayout>
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-slate-700 font-semibold">Loading campaign…</p>
+      </div>
     );
   }
 
   if (!campaign) {
     return (
-      <PublicLayout>
-        <div className="min-h-screen flex items-center justify-center">
-          <p className="text-slate-700 font-semibold">Campaign not found</p>
-        </div>
-      </PublicLayout>
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-slate-700 font-semibold">Campaign not found</p>
+      </div>
     );
   }
 
@@ -60,8 +55,7 @@ export default function CampaignDetails() {
   );
 
   return (
-    <PublicLayout>
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-12 px-6">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-12 px-6">
         <div className="max-w-6xl mx-auto space-y-8">
           {/* Header */}
           <motion.div
@@ -164,7 +158,7 @@ export default function CampaignDetails() {
 
               {/* Donate Button */}
               <button
-                onClick={() => navigate(`/donate/${org?._id}`)}
+                onClick={() => navigate(`/donate?donateOrg=${org?._id}&campaignId=${campaign?._id}&campaignName=${encodeURIComponent(campaign?.title)}`)}
                 className="w-full rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 font-bold text-lg hover:shadow-lg transition mb-4"
               >
                 💝 Donate Now
@@ -229,6 +223,5 @@ export default function CampaignDetails() {
           )}
         </div>
       </div>
-    </PublicLayout>
   );
 }

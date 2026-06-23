@@ -4,6 +4,46 @@ const Campaign = require("../models/Campaign");
 const Organization = require("../models/Organization");
 const { authMiddleware, authorizeRoles } = require("../middleware/auth");
 
+// Get all campaigns
+router.get("/", async (req, res) => {
+  try {
+    const campaigns = await Campaign.find({}).sort({ createdAt: -1 });
+    res.json(campaigns);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+// Admin Update/Moderate campaign
+router.put("/:id/admin", async (req, res) => {
+  try {
+    const campaign = await Campaign.findById(req.params.id);
+    if (!campaign) return res.status(404).json({ message: "Campaign not found" });
+
+    const { status } = req.body;
+    if (status) campaign.status = status;
+    campaign.updatedAt = Date.now();
+
+    await campaign.save();
+    res.json({ message: "Campaign moderated successfully", campaign });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+// Admin Delete campaign
+router.delete("/:id/admin", async (req, res) => {
+  try {
+    const campaign = await Campaign.findById(req.params.id);
+    if (!campaign) return res.status(404).json({ message: "Campaign not found" });
+
+    await Campaign.findByIdAndDelete(req.params.id);
+    res.json({ message: "Campaign deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
 // Get all campaigns for an organization (public)
 router.get("/org/:orgId", async (req, res) => {
   try {

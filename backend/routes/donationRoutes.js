@@ -8,7 +8,7 @@ router.post("/monetary", async (req, res) => {
   try {
     console.log("📩 Monetary donation received:", req.body);
 
-    const { orgId, donorName, donorEmail, donorPhone, amount } = req.body;
+    const { orgId, donorName, donorEmail, donorPhone, amount, campaignId, campaignName } = req.body;
 
     if (!orgId || !amount) {
       return res.status(400).json({ message: "Missing orgId or amount" });
@@ -28,6 +28,8 @@ router.post("/monetary", async (req, res) => {
       organizationName: org.name,
       type: "monetary",
       amount,
+      campaignId,
+      campaignName,
       status: "completed",
     });
 
@@ -46,6 +48,17 @@ router.post("/monetary", async (req, res) => {
 
     // ✅ Skip unrelated field validation
     await org.save({ validateBeforeSave: false });
+
+    // Update Campaign raisedAmount if associated
+    if (campaignId) {
+      const Campaign = require("../models/Campaign");
+      const campaign = await Campaign.findById(campaignId);
+      if (campaign) {
+        campaign.raisedAmount = (campaign.raisedAmount || 0) + Number(amount);
+        await campaign.save();
+        console.log(`✅ Campaign ${campaignId} raisedAmount updated to: ${campaign.raisedAmount}`);
+      }
+    }
 
     console.log("✅ Monetary donation saved:", donation._id);
     res.status(200).json({ message: "Monetary donation logged successfully", donation });
@@ -169,7 +182,7 @@ router.post("/wishlist", async (req, res) => {
   try {
     console.log("📦 Wishlist donation received:", req.body);
 
-    const { orgId, name, email, phone, item, quantity, method } = req.body;
+    const { orgId, name, email, phone, item, quantity, method, campaignId, campaignName } = req.body;
 
     if (!orgId || !item || !quantity) {
       return res.status(400).json({ message: "Missing fields" });
@@ -191,6 +204,8 @@ router.post("/wishlist", async (req, res) => {
       item,
       quantity,
       deliveryMethod: method,
+      campaignId,
+      campaignName,
       status: "completed",
     });
 

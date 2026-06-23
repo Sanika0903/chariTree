@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { apiUrl } from "../config/api";
-import OrgNavbar from "../components/OrgNavbar";
 
 export default function CampaignCreate() {
   const navigate = useNavigate();
@@ -74,7 +73,6 @@ export default function CampaignCreate() {
 
   return (
     <>
-      <OrgNavbar />
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-8">
         <div className="max-w-2xl mx-auto">
           <motion.div

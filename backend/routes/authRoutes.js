@@ -28,7 +28,7 @@ router.post("/org/signup", async (req, res) => {
 
     await newOrg.save();
 
-    const token = jwt.sign({ id: newOrg._id, type: "organization" }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: newOrg._id, role: "organization", type: "organization" }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
 
